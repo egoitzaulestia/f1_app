@@ -1,4 +1,4 @@
-1_Acerca_de.py
+# pages/11_Acerca_de.py
 
 import streamlit as st
 
