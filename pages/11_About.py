@@ -15,7 +15,7 @@ st.markdown("""
 
 **Autor:** Egoitz Aulestia Padilla 
 
-**Curso:** Inteligencia Artificial y Big Data
+**Curso:** Inteligencia Artificial y Big Data 2023-2025
             
 **Centro Escolar:** CEBANC
 
