@@ -36,7 +36,7 @@ st.markdown("""
     <br>
     <div style="background-color: rgba(0, 0, 0); padding: 20px; border-radius: 10px;">
         <h1 style="color: white; text-align: center;">
-            Bienvenido al Análisis de Datos de Fórmula 1 
+            Bienvenido al Análisis Exploratorio de Datos de Fórmula 1 
         </h1>
         <p style="color: white; text-align: center;">
             Explora diferentes secciones para obtener análisis detallados sobre pilotos, equipos, circuitos y mucho más en el emocionante mundo de la Fórmula 1.
@@ -46,12 +46,3 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.sidebar.success("Selecciona una página arriba.")
-
-# # Descripción adicional (opcional)
-# st.markdown("""
-#     <div style="background-color: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 10px;">
-#         <p style="color: white; text-align: center;">
-#             Explora diferentes secciones para obtener análisis detallados sobre pilotos, equipos, circuitos y mucho más en el emocionante mundo de la Fórmula 1.
-#         </p>
-#     </div>
-#     """, unsafe_allow_html=True)
