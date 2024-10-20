@@ -31,14 +31,14 @@ circuits = pd.read_csv('data/circuits.csv')
 with open('data/circuit_lengths.json', 'r') as f:
     circuit_lengths = json.load(f)
 
-# Convertir circuit_lengths a DataFrame
-circuit_lengths_df = pd.DataFrame.from_dict(circuit_lengths, orient='index', columns=['circuit_length'])
-circuit_lengths_df.reset_index(inplace=True)
-circuit_lengths_df.rename(columns={'index': 'circuitRef'}, inplace=True)
-circuit_lengths_df['circuit_length'] = pd.to_numeric(circuit_lengths_df['circuit_length'], errors='coerce')
+# Asignar longitudes de circuitos mapeando por 'name'
+circuits['circuit_length'] = circuits['name'].map(circuit_lengths)
 
-# Unir circuit_lengths_df con circuits a través de 'circuitRef'
-circuits = circuits.merge(circuit_lengths_df, on='circuitRef', how='left')
+# Verificar si hay circuitos sin longitud asignada
+missing_lengths = circuits[circuits['circuit_length'].isnull()]
+if not missing_lengths.empty:
+    st.write("Los siguientes circuitos no tienen longitud asignada:")
+    st.write(missing_lengths[['circuitId', 'name']].drop_duplicates())
 
 # Hacemos un merge entre 'results' y 'races' para obtener el año asociado a cada carrera
 results_with_year = results.merge(races[['raceId', 'year', 'circuitId']], on='raceId', how='left')
@@ -275,7 +275,7 @@ start_year = 1950
 end_year = 2023
 
 # Filtrar los datos por el rango de años
-data_filtered = results_with_year[(results_with_year['year'] >= start_year) & (results_with_year['year'] <= end_year)]
+data_filtered = results_with_year[(results_with_year['year'] >= start_year) & (results_with_year['year'] <= end_year)].copy()
 
 # Convertir 'year' a tipo entero
 data_filtered['year'] = data_filtered['year'].astype(int)
@@ -287,7 +287,9 @@ years_order = sorted(data_filtered['year'].unique())
 median_speed_per_year = data_filtered.groupby('year')['average_speed'].median().reset_index()
 
 # Realizar regresión lineal sobre la mediana de velocidades
-coefficients = np.polyfit(median_speed_per_year['year'], median_speed_per_year['average_speed'], 1)
+x = median_speed_per_year['year']
+y = median_speed_per_year['average_speed']
+coefficients = np.polyfit(x, y, 1)
 poly = np.poly1d(coefficients)
 trendline = poly(median_speed_per_year['year'])
 
