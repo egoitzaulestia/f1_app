@@ -365,6 +365,8 @@ fig_heatmap = px.imshow(
     aspect='auto',
     labels={'x': 'Año', 'y': 'Carrera', 'color': 'Posición'},
     text_auto=False,
+    xgap=1,  # Mover xgap aquí
+    ygap=1,  # Mover ygap aquí
 )
 
 # Añadir texto personalizado
@@ -384,17 +386,20 @@ fig_heatmap.update_coloraxes(
     )
 )
 
-# Invertir el eje Y para que las carreras se muestren correctamente
-fig_heatmap.update_yaxes(autorange='reversed')
+# Actualizar los ejes
+fig_heatmap.update_xaxes(
+    nticks=len(heatmap_data.columns),
+    tickangle=-45,
+)
 
-# Añadir xgap y ygap para mostrar las líneas de rejilla
+fig_heatmap.update_yaxes(
+    nticks=len(heatmap_data.index),
+    autorange='reversed'
+)
+
+# Configurar el layout
 fig_heatmap.update_layout(
     title=f'Posiciones de {selected_constructor} en las Carreras (por año)',
-    xaxis_nticks=len(heatmap_data.columns),
-    yaxis_nticks=len(heatmap_data.index),
-    xaxis_tickangle=-45,
-    xgap=1,
-    ygap=1,
     width=1200,
     height=800,
     coloraxis_colorbar=dict(
@@ -410,3 +415,4 @@ st.plotly_chart(fig_heatmap, use_container_width=True)
 st.markdown(f"""
 Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas. Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas (peores resultados).
 """)
+
