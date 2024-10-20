@@ -119,7 +119,7 @@ circuits['permanence_numeric'] = circuits['permanence'].map(permanence_numeric_m
 # Función para obtener el continente a partir de latitud y longitud
 def get_continent(lat, lng):
     coordinates = (lat, lng)
-    result = rg.search(coordinates)  # Obtener información sobre el país
+    result = rg.search(coordinates, mode=1)  # Obtener información sobre el país
     country_code = result[0]['cc']
 
     try:
@@ -187,7 +187,7 @@ permanence_counts.columns = ['permanence', 'count']
 continent_counts = circuits_year_selected['continent'].value_counts().reset_index()
 continent_counts.columns = ['continent', 'count']
 
-# Crear subplots para los gráficos de dona
+# Crear subplots para los gráficos de dona con leyendas separadas
 fig = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]])
 
 # Gráfico de dona para Tipo de Superficie
@@ -195,32 +195,57 @@ fig.add_trace(go.Pie(
     labels=surface_counts['surface'],
     values=surface_counts['count'],
     name="Tipo de Superficie",
-    hole=0.4), 1, 1)
+    hole=0.4,
+    legendgroup='group1',
+    showlegend=True
+), 1, 1)
 
 # Gráfico de dona para Tipo de Duración
 fig.add_trace(go.Pie(
     labels=permanence_counts['permanence'],
     values=permanence_counts['count'],
     name="Tipo de Duración",
-    hole=0.4), 1, 2)
+    hole=0.4,
+    legendgroup='group2',
+    showlegend=True
+), 1, 2)
 
 # Gráfico de dona para Distribución Geográfica
 fig.add_trace(go.Pie(
     labels=continent_counts['continent'],
     values=continent_counts['count'],
     name="Distribución Geográfica",
-    hole=0.4), 1, 3)
+    hole=0.4,
+    legendgroup='group3',
+    showlegend=True
+), 1, 3)
 
-# Actualizar títulos y layout
+# Actualizar leyendas para que sean independientes
+fig.update_traces(legendgrouptitle_text='', selector=dict(type='pie'))
+
+# Posicionar las leyendas debajo de cada gráfico
 fig.update_layout(
     title_text=f"Distribución de Circuitos en {selected_year}",
-    annotations=[
-        dict(text='Superficie', x=0.08, y=0.5, font_size=14, showarrow=False),
-        dict(text='Duración', x=0.50, y=0.5, font_size=14, showarrow=False),
-        dict(text='Geografía', x=0.92, y=0.5, font_size=14, showarrow=False)
-    ],
     width=1200,
-    height=500,
+    height=600,
+    showlegend=True,
+    legend_tracegroupgap = 20,
+    legends=dict(
+        orientation="h",
+        xanchor="center",
+        yanchor="top",
+        x=0.5,
+        y=-0.1
+    ),
+)
+
+# Mover los títulos de los gráficos encima de cada dona
+fig.update_layout(
+    annotations=[
+        dict(text='Tipo de Superficie', x=0.09, y=1.1, font_size=14, showarrow=False, xref="paper", yref="paper"),
+        dict(text='Tipo de Duración', x=0.50, y=1.1, font_size=14, showarrow=False, xref="paper", yref="paper"),
+        dict(text='Distribución Geográfica', x=0.91, y=1.1, font_size=14, showarrow=False, xref="paper", yref="paper")
+    ]
 )
 
 st.plotly_chart(fig, use_container_width=True)
