@@ -183,6 +183,9 @@ results_races_drivers = pd.merge(results_races_drivers, constructors[['construct
 qualifying = data['qualifying']
 results_races_drivers = pd.merge(results_races_drivers, qualifying[['raceId', 'driverId', 'position']], on=['raceId', 'driverId'], how='left', suffixes=('', '_qualifying'))
 
+# Renombrar 'position' de clasificación a 'qualifying_position'
+results_races_drivers.rename(columns={'position_qualifying': 'qualifying_position'}, inplace=True)
+
 # Calcular la edad del piloto en el momento de la carrera
 results_races_drivers['dob'] = pd.to_datetime(results_races_drivers['dob'], errors='coerce')
 results_races_drivers['date'] = pd.to_datetime(results_races_drivers['date'], errors='coerce')
@@ -199,11 +202,7 @@ results_races_drivers['num_pit_stops'] = results_races_drivers['num_pit_stops'].
 
 # ---------------------------
 # Seleccionar variables para el análisis de correlación
-corr_variables = ['grid', 'positionOrder', 'points', 'laps', 'milliseconds', 'fastestLapSpeed', 'driver_age', 'num_pit_stops', 'position_qualifying']
-
-# Renombrar 'position' de clasificación a 'position_qualifying' en caso de conflicto
-results_races_drivers.rename(columns={'position_qualifying': 'qualifying_position'}, inplace=True)
-corr_variables.append('qualifying_position')
+corr_variables = ['grid', 'positionOrder', 'points', 'laps', 'milliseconds', 'fastestLapSpeed', 'driver_age', 'num_pit_stops', 'qualifying_position']
 
 # Extraer los datos para las variables seleccionadas
 corr_data = results_races_drivers[corr_variables]
@@ -384,18 +383,20 @@ if 'weather' in data:
     weather_corr_vars = ['positionOrder', 'points'] + weather_cols
     weather_data = weather_results[weather_corr_vars].dropna()
 
-    # Mostrar matriz de correlación
-    st.write("### Matriz de Correlación con Variables Climáticas")
+    if not weather_data.empty:
+        # Mostrar matriz de correlación
+        st.write("### Matriz de Correlación con Variables Climáticas")
 
-    weather_corr_matrix = weather_data.corr()
+        weather_corr_matrix = weather_data.corr()
 
-    fig_weather_corr, ax_weather_corr = plt.subplots(figsize=(10, 8))
-    sns.heatmap(weather_corr_matrix, annot=True, cmap='coolwarm', ax=ax_weather_corr)
-    st.pyplot(fig_weather_corr)
+        fig_weather_corr, ax_weather_corr = plt.subplots(figsize=(10, 8))
+        sns.heatmap(weather_corr_matrix, annot=True, cmap='coolwarm', ax=ax_weather_corr)
+        st.pyplot(fig_weather_corr)
 
-    st.markdown("""
-    La matriz de correlación incluye variables climáticas como temperatura, humedad, velocidad del viento y precipitación. Esto nos permite explorar cómo las condiciones climáticas pueden afectar el rendimiento en las carreras.
-    """)
+        st.markdown("""
+        La matriz de correlación incluye variables climáticas como temperatura, humedad, velocidad del viento y precipitación. Esto nos permite explorar cómo las condiciones climáticas pueden afectar el rendimiento en las carreras.
+        """)
+    else:
+        st.write("**No hay datos suficientes para realizar el análisis con variables climáticas.**")
 else:
     st.write("**Datos de clima no disponibles para el análisis.**")
-
