@@ -204,7 +204,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.write("# Análisis de Constructores 🏆")
+st.write("# Análisis de Constructores 🏎️👨‍🔧")
 
 # ---------------------------
 # Cargar datasets
