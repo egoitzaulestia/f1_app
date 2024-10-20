@@ -4,3 +4,5 @@ plotly
 streamlit-folium
 folium
 seaborn
+reverse_geocoder
+pycountry_convert
