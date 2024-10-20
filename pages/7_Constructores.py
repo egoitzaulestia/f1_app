@@ -334,85 +334,85 @@ fig_championship.update_layout(
 
 st.plotly_chart(fig_championship, use_container_width=True)
 
-# ---------------------------
-# Gráfico: Heatmap de posiciones por carrera y año usando Plotly Express
+# # ---------------------------
+# # Gráfico: Heatmap de posiciones por carrera y año usando Plotly Express
 
-# Crear una tabla pivote con los resultados de las carreras por circuito y año
-heatmap_data = constructor_data.pivot_table(index='race_name', columns='year', values='positionOrder', aggfunc='min')
+# # Crear una tabla pivote con los resultados de las carreras por circuito y año
+# heatmap_data = constructor_data.pivot_table(index='race_name', columns='year', values='positionOrder', aggfunc='min')
 
-# Obtener el máximo puesto en los datos
-max_position = constructor_data['positionOrder'].max()
+# # Obtener el máximo puesto en los datos
+# max_position = constructor_data['positionOrder'].max()
 
-# Reemplazar NaN con max_position +1 para indicar carreras no corridas
-heatmap_data = heatmap_data.fillna(max_position + 1)
+# # Reemplazar NaN con max_position +1 para indicar carreras no corridas
+# heatmap_data = heatmap_data.fillna(max_position + 1)
 
-# Crear una matriz de texto donde las celdas con max_position +1 tienen ''
-text_matrix = heatmap_data.applymap(lambda x: '' if x == (max_position + 1) else str(int(x)))
+# # Crear una matriz de texto donde las celdas con max_position +1 tienen ''
+# text_matrix = heatmap_data.applymap(lambda x: '' if x == (max_position + 1) else str(int(x)))
 
-# Invertir los valores de posición para que las mejores posiciones tengan valores más altos
-z_values = max_position - heatmap_data.values + 1
+# # Invertir los valores de posición para que las mejores posiciones tengan valores más altos
+# z_values = max_position - heatmap_data.values + 1
 
-# Definir una escala de colores personalizada (opcional)
-def get_custom_color_scale():
-    return px.colors.sequential.Blues
+# # Definir una escala de colores personalizada (opcional)
+# def get_custom_color_scale():
+#     return px.colors.sequential.Blues
 
-# Crear el heatmap con Plotly Express imshow
-fig_heatmap = px.imshow(
-    z_values,
-    x=heatmap_data.columns,
-    y=heatmap_data.index,
-    color_continuous_scale=get_custom_color_scale(),
-    aspect='auto',
-    labels={'x': 'Año', 'y': 'Carrera', 'color': 'Posición'},
-    text_auto=False,
-    xgap=1,  # Mover xgap aquí
-    ygap=1,  # Mover ygap aquí
-)
+# # Crear el heatmap con Plotly Express imshow
+# fig_heatmap = px.imshow(
+#     z_values,
+#     x=heatmap_data.columns,
+#     y=heatmap_data.index,
+#     color_continuous_scale=get_custom_color_scale(),
+#     aspect='auto',
+#     labels={'x': 'Año', 'y': 'Carrera', 'color': 'Posición'},
+#     text_auto=False,
+#     xgap=1,  # Mover xgap aquí
+#     ygap=1,  # Mover ygap aquí
+# )
 
-# Añadir texto personalizado
-fig_heatmap.update_traces(
-    text=text_matrix.values,
-    hovertemplate='Año: %{x}<br>Carrera: %{y}<br>Posición: %{text}<extra></extra>',
-    textfont=dict(color='black'),
-)
+# # Añadir texto personalizado
+# fig_heatmap.update_traces(
+#     text=text_matrix.values,
+#     hovertemplate='Año: %{x}<br>Carrera: %{y}<br>Posición: %{text}<extra></extra>',
+#     textfont=dict(color='black'),
+# )
 
-# Ajustar la barra de colores para mostrar las posiciones reales
-fig_heatmap.update_coloraxes(
-    colorbar=dict(
-        tickmode='array',
-        tickvals=[1, max_position - max_position + 1],
-        ticktext=['1 (Mejor)', f'{max_position} (Peor)'],
-        title='Posición',
-    )
-)
+# # Ajustar la barra de colores para mostrar las posiciones reales
+# fig_heatmap.update_coloraxes(
+#     colorbar=dict(
+#         tickmode='array',
+#         tickvals=[1, max_position - max_position + 1],
+#         ticktext=['1 (Mejor)', f'{max_position} (Peor)'],
+#         title='Posición',
+#     )
+# )
 
-# Actualizar los ejes
-fig_heatmap.update_xaxes(
-    nticks=len(heatmap_data.columns),
-    tickangle=-45,
-)
+# # Actualizar los ejes
+# fig_heatmap.update_xaxes(
+#     nticks=len(heatmap_data.columns),
+#     tickangle=-45,
+# )
 
-fig_heatmap.update_yaxes(
-    nticks=len(heatmap_data.index),
-    autorange='reversed'
-)
+# fig_heatmap.update_yaxes(
+#     nticks=len(heatmap_data.index),
+#     autorange='reversed'
+# )
 
-# Configurar el layout
-fig_heatmap.update_layout(
-    title=f'Posiciones de {selected_constructor} en las Carreras (por año)',
-    width=1200,
-    height=800,
-    coloraxis_colorbar=dict(
-        lenmode='pixels',
-        len=500,
-        yanchor='top',
-        y=1,
-    ),
-)
+# # Configurar el layout
+# fig_heatmap.update_layout(
+#     title=f'Posiciones de {selected_constructor} en las Carreras (por año)',
+#     width=1200,
+#     height=800,
+#     coloraxis_colorbar=dict(
+#         lenmode='pixels',
+#         len=500,
+#         yanchor='top',
+#         y=1,
+#     ),
+# )
 
-st.plotly_chart(fig_heatmap, use_container_width=True)
+# st.plotly_chart(fig_heatmap, use_container_width=True)
 
-st.markdown(f"""
-Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas. Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas (peores resultados).
-""")
+# st.markdown(f"""
+# Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas. Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas (peores resultados).
+# """)
 
