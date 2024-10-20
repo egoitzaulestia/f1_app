@@ -95,13 +95,13 @@ circuits, races = load_data()
 
 # ---------------------------
 # Leer los archivos JSON
-with open('data/surface_classification.json', 'r') as f:
+with open('data/surface_classification.json', 'r', encoding='utf-8') as f:
     surface_classification = json.load(f)
 
-with open('data/permanence_classification.json', 'r') as f:
+with open('data/permanence_classification.json', 'r', encoding='utf-8') as f:
     permanence_classification = json.load(f)
 
-with open('data/continent_classification.json', 'r') as f:
+with open('data/continent_classification.json', 'r', encoding='utf-8') as f:
     continent_classification = json.load(f)
 
 # Asignar la clasificación de superficies
@@ -130,9 +130,8 @@ circuits['continent_numeric'] = circuits['continent'].map(continent_numeric_mapp
 # Unir datasets para obtener información adicional
 race_circuits = races.merge(circuits, on='circuitId')
 
-# Añadir el año al circuito y renombrar columnas
-circuits_year = race_circuits[['year', 'circuitId', 'name_x', 'name_y', 'surface', 'permanence', 'continent']]
-circuits_year = circuits_year.rename(columns={'name_x': 'race_name', 'name_y': 'circuit_name'})
+# Renombrar columnas en race_circuits para tener 'circuit_name'
+race_circuits.rename(columns={'name_x': 'race_name', 'name_y': 'circuit_name'}, inplace=True)
 
 # ---------------------------
 # Gráfico de los circuitos más utilizados
