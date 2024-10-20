@@ -191,7 +191,6 @@
 # Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas (mismo color que el último puesto). Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas.
 # """)
 
-
 # pages/7_Constructores.py
 
 import streamlit as st
@@ -336,7 +335,7 @@ fig_championship.update_layout(
 st.plotly_chart(fig_championship, use_container_width=True)
 
 # ---------------------------
-# Gráfico: Heatmap de posiciones por carrera y año usando Plotly Graph Objects
+# Gráfico: Heatmap de posiciones por carrera y año usando Plotly Express
 
 # Crear una tabla pivote con los resultados de las carreras por circuito y año
 heatmap_data = constructor_data.pivot_table(index='race_name', columns='year', values='positionOrder', aggfunc='min')
@@ -350,40 +349,64 @@ heatmap_data = heatmap_data.fillna(max_position + 1)
 # Crear una matriz de texto donde las celdas con max_position +1 tienen ''
 text_matrix = heatmap_data.applymap(lambda x: '' if x == (max_position + 1) else str(int(x)))
 
-# Definir una escala de colores personalizada
+# Invertir los valores de posición para que las mejores posiciones tengan valores más altos
+z_values = max_position - heatmap_data.values + 1
+
+# Definir una escala de colores personalizada (opcional)
 def get_custom_color_scale():
-    """
-    Crear una escala de colores que asigna un color oscuro al primer puesto (1),
-    y va aclarando progresivamente hacia el último puesto.
-    Las celdas vacías (carreras no corridas) tendrán el mismo color que el último puesto.
-    """
     return px.colors.sequential.Blues
 
-# Crear el heatmap con Plotly Graph Objects
-fig_heatmap = go.Figure(data=go.Heatmap(
-    z=heatmap_data.values,
+# Crear el heatmap con Plotly Express imshow
+fig_heatmap = px.imshow(
+    z_values,
     x=heatmap_data.columns,
     y=heatmap_data.index,
-    colorscale=get_custom_color_scale(),
-    colorbar=dict(title='Posición'),
-    text=text_matrix.values,
-    hoverinfo='text',
-    texttemplate='%{text}',
-    showscale=True,
-    line=dict(width=1, color='black')  # Añadir líneas de recuadro
-))
+    color_continuous_scale=get_custom_color_scale(),
+    aspect='auto',
+    labels={'x': 'Año', 'y': 'Carrera', 'color': 'Posición'},
+    text_auto=False,
+)
 
-# Configurar el layout
+# Añadir texto personalizado
+fig_heatmap.update_traces(
+    text=text_matrix.values,
+    hovertemplate='Año: %{x}<br>Carrera: %{y}<br>Posición: %{text}<extra></extra>',
+    textfont=dict(color='black'),
+)
+
+# Ajustar la barra de colores para mostrar las posiciones reales
+fig_heatmap.update_coloraxes(
+    colorbar=dict(
+        tickmode='array',
+        tickvals=[1, max_position - max_position + 1],
+        ticktext=['1 (Mejor)', f'{max_position} (Peor)'],
+        title='Posición',
+    )
+)
+
+# Invertir el eje Y para que las carreras se muestren correctamente
+fig_heatmap.update_yaxes(autorange='reversed')
+
+# Añadir xgap y ygap para mostrar las líneas de rejilla
 fig_heatmap.update_layout(
     title=f'Posiciones de {selected_constructor} en las Carreras (por año)',
-    xaxis_title='Año',
-    yaxis_title='Carrera',
+    xaxis_nticks=len(heatmap_data.columns),
+    yaxis_nticks=len(heatmap_data.index),
+    xaxis_tickangle=-45,
+    xgap=1,
+    ygap=1,
     width=1200,
-    height=800
+    height=800,
+    coloraxis_colorbar=dict(
+        lenmode='pixels',
+        len=500,
+        yanchor='top',
+        y=1,
+    ),
 )
 
 st.plotly_chart(fig_heatmap, use_container_width=True)
 
 st.markdown(f"""
-Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas (mismo color que el último puesto). Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas.
+Este heatmap muestra las posiciones de {selected_constructor} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas. Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas (peores resultados).
 """)

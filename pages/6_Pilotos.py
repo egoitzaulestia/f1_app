@@ -245,5 +245,5 @@ fig_heatmap.update_layout(
 st.plotly_chart(fig_heatmap, use_container_width=True)
 
 st.markdown(f"""
-Este heatmap muestra las posiciones de {selected_pilot} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas (color igual al último puesto). Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más altas.
+Este heatmap muestra las posiciones de {selected_pilot} en las carreras a lo largo de los años. Las celdas vacías representan las carreras no corridas (color igual al último puesto). Las áreas más oscuras indican mejores posiciones (1), mientras que las más claras representan posiciones más alejadas de los primeros puestos.
 """)
