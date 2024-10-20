@@ -105,7 +105,7 @@ fig_championship = px.line(
     y='championship_position',
     title=f'Posición Final de {selected_pilot} en el Campeonato',
     labels={'year': 'Año', 'championship_position': 'Posición'},
-    markers=True
+    markers=False
 )
 
 # Filtrar los años en los que fue campeón
