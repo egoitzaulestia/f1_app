@@ -32,6 +32,6 @@ para crear una aplicación web interactiva que permite a los usuarios explorar l
 
 **Agradecimientos:**
 
-- Agradezco a [Fuentes de Datos] por proporcionar los datasets utilizados en este proyecto.
+- Agradezco a Rohan Rao por proporcionar los datasets [ https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020 ] utilizados en este proyecto.
 - [Otros agradecimientos si aplica]
 """)

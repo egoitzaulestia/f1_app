@@ -136,46 +136,6 @@ fig_championship.update_layout(
 
 st.plotly_chart(fig_championship, use_container_width=True)
 
-# # ---------------------------
-# # Gráfico 2: Heatmap de posiciones por carrera y año
-# # Crear una tabla pivote con los resultados de las carreras por circuito y año
-# heatmap_data = pilot_data.pivot_table(index='name', columns='year', values='positionOrder', aggfunc='min')
-
-# # Configurar el estilo de Seaborn
-# sns.set(style='white')
-
-# # Crear la figura y ajustar el tamaño
-# plt.figure(figsize=(20, 10))
-
-# # Definir una paleta personalizada de blanco y negro para el heatmap
-# black_white_cmap = LinearSegmentedColormap.from_list('black_white', ['black', 'white'])
-
-# # Crear el heatmap
-# sns.heatmap(
-#     heatmap_data,
-#     cmap=black_white_cmap,
-#     linewidths=0.5,
-#     linecolor='lightgrey',
-#     cbar_kws={'label': 'Posición en la Carrera'},
-#     annot=True, fmt='.0f'
-# )
-
-# # Ajustar las etiquetas y título
-# plt.title(f'Posiciones de {selected_pilot} en las Carreras (por año)', fontsize=18)
-# plt.xlabel('Año', fontsize=14)
-# plt.ylabel('Circuito', fontsize=14)
-
-# # Mejorar la legibilidad de las etiquetas del eje X
-# plt.xticks(rotation=90)
-
-# # Ajustar el gráfico
-# plt.tight_layout()
-
-# # Mostrar el gráfico en Streamlit
-# st.pyplot(plt)
-
-
-
 # ---------------------------
 # Función para crear la escala de colores
 
