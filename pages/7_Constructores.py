@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.write("# Análisis de Constructores 🏢")
+st.write("# Análisis de Constructores 🏎️")
 
 st.markdown("""
 Explora los constructores de Fórmula 1 con más éxito y su desempeño a lo largo de los años.

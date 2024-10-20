@@ -4,7 +4,7 @@ import streamlit as st
 import base64
 
 st.set_page_config(
-    page_title="Home",
+    page_title="APP",
     page_icon="🏎️",
     layout="wide",
 )
@@ -28,7 +28,7 @@ def set_background(image_file):
     st.markdown(css, unsafe_allow_html=True)
 
 # Llamar a la función con la ruta de la imagen
-set_background("images/fondoF1_2.jpg")
+set_background("images/fondoF1.jpg")
 
 # ---------------------------
 # Estilizar el título con un fondo negro y texto blanco
