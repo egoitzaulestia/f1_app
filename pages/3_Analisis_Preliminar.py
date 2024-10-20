@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np  # Importar numpy para cálculos numéricos
+import json  # Para cargar el JSON de circuit_lengths
 
 st.set_page_config(
     page_title="Análisis Preliminar",
@@ -24,9 +25,26 @@ constructors = pd.read_csv('data/constructors.csv')
 results = pd.read_csv('data/results.csv')
 races = pd.read_csv('data/races.csv')
 driver_standings = pd.read_csv('data/driver_standings.csv')
+circuits = pd.read_csv('data/circuits.csv')
+
+# Cargar circuit_lengths desde el JSON
+with open('data/circuit_lengths.json', 'r') as f:
+    circuit_lengths = json.load(f)
+
+# Convertir circuit_lengths a DataFrame
+circuit_lengths_df = pd.DataFrame.from_dict(circuit_lengths, orient='index', columns=['circuit_length'])
+circuit_lengths_df.reset_index(inplace=True)
+circuit_lengths_df.rename(columns={'index': 'circuitRef'}, inplace=True)
+circuit_lengths_df['circuit_length'] = pd.to_numeric(circuit_lengths_df['circuit_length'], errors='coerce')
+
+# Unir circuit_lengths_df con circuits a través de 'circuitRef'
+circuits = circuits.merge(circuit_lengths_df, on='circuitRef', how='left')
 
 # Hacemos un merge entre 'results' y 'races' para obtener el año asociado a cada carrera
-results_with_year = results.merge(races[['raceId', 'year']], on='raceId', how='left')
+results_with_year = results.merge(races[['raceId', 'year', 'circuitId']], on='raceId', how='left')
+
+# Unir 'results_with_year' con 'circuits' para obtener la longitud del circuito
+results_with_year = results_with_year.merge(circuits[['circuitId', 'circuit_length']], on='circuitId', how='left')
 
 # Análisis 1: Distribución de Pilotos por Nacionalidad
 st.write("## Distribución de Pilotos por Nacionalidad")
@@ -44,6 +62,10 @@ fig1.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
 st.plotly_chart(fig1, use_container_width=True)
 
+st.markdown("""
+Esta gráfica muestra las nacionalidades más comunes entre los pilotos de Fórmula 1 desde 1950 hasta 2024. Observamos cuáles países han aportado más pilotos a lo largo de la historia.
+""")
+
 # Análisis 2: Distribución de Constructores por Nacionalidad
 st.write("## Distribución de Constructores por Nacionalidad")
 
@@ -59,6 +81,10 @@ fig2.update_traces(textposition='outside')  # Posicionamos el texto encima de la
 fig2.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
 st.plotly_chart(fig2, use_container_width=True)
+
+st.markdown("""
+Esta gráfica muestra las nacionalidades más comunes entre los constructores de Fórmula 1 desde 1950 hasta 2024. Permite identificar los países con mayor presencia en la fabricación de vehículos para la competencia.
+""")
 
 # Análisis 3: Número de Carreras por Año y Número de Victorias por el Campeón
 st.write("## Número de Carreras por Año y Victorias del Campeón")
@@ -130,6 +156,10 @@ fig3.update_layout(
 )
 
 st.plotly_chart(fig3, use_container_width=True)
+
+st.markdown("""
+En este gráfico observamos la evolución del número de carreras por año en la Fórmula 1 y cómo se relaciona con el número de victorias del campeón en cada temporada. Nos permite analizar si un mayor número de carreras influye en las victorias del campeón.
+""")
 
 # Análisis 4: Boxplot de las posiciones del campeón en cada carrera por año
 st.write("## Distribución de las Posiciones del Campeón por Año")
@@ -210,6 +240,114 @@ fig4.update_layout(
 )
 
 st.plotly_chart(fig4, use_container_width=True)
+
+st.markdown("""
+Este gráfico muestra la distribución de las posiciones obtenidas por el campeón en cada carrera de cada año. Los boxplots permiten visualizar la variabilidad y consistencia en el desempeño de los campeones a lo largo de las temporadas.
+""")
+
+# Análisis 5: Velocidad Promedio de Pilotos en Carreras de F1 a lo largo de los años
+st.write("## Velocidad Promedio de Pilotos en Carreras de F1 (1950-2023)")
+
+# Preparar los datos
+# Convertir columnas a tipos numéricos
+numeric_columns_results = ['laps', 'milliseconds']
+for col in numeric_columns_results:
+    results_with_year[col] = pd.to_numeric(results_with_year[col], errors='coerce')
+
+# Calcular la distancia total recorrida por cada piloto en cada carrera
+results_with_year['distance'] = results_with_year['laps'] * results_with_year['circuit_length']  # Distancia en km
+
+# Calcular el tiempo total en horas
+results_with_year['time_hours'] = results_with_year['milliseconds'] / (1000 * 60 * 60)
+
+# Calcular la velocidad promedio (km/h)
+results_with_year['average_speed'] = results_with_year['distance'] / results_with_year['time_hours']
+
+# Eliminar resultados inválidos
+results_with_year = results_with_year[
+    (results_with_year['average_speed'].notnull()) &
+    (results_with_year['average_speed'] > 0) &
+    (results_with_year['average_speed'] <= 300)
+]
+
+# Seleccionar el rango de años que deseas analizar
+start_year = 1950
+end_year = 2023
+
+# Filtrar los datos por el rango de años
+data_filtered = results_with_year[(results_with_year['year'] >= start_year) & (results_with_year['year'] <= end_year)]
+
+# Convertir 'year' a tipo entero
+data_filtered['year'] = data_filtered['year'].astype(int)
+
+# Crear una lista de años ordenados
+years_order = sorted(data_filtered['year'].unique())
+
+# Calcular la mediana de la velocidad promedio por año
+median_speed_per_year = data_filtered.groupby('year')['average_speed'].median().reset_index()
+
+# Realizar regresión lineal sobre la mediana de velocidades
+coefficients = np.polyfit(median_speed_per_year['year'], median_speed_per_year['average_speed'], 1)
+poly = np.poly1d(coefficients)
+trendline = poly(median_speed_per_year['year'])
+
+# Crear el boxplot con Plotly
+fig5 = go.Figure()
+
+# Añadir boxplots por año
+for year in years_order:
+    year_data = data_filtered[data_filtered['year'] == year]['average_speed']
+    fig5.add_trace(go.Box(
+        y=year_data,
+        x=[year]*len(year_data),
+        name=str(year),
+        boxmean=False,
+        marker_color='lightblue',
+        line=dict(color='blue'),
+        showlegend=False
+    ))
+
+# Añadir la mediana de la velocidad promedio por año
+fig5.add_trace(go.Scatter(
+    x=median_speed_per_year['year'],
+    y=median_speed_per_year['average_speed'],
+    mode='lines+markers',
+    name='Mediana',
+    line=dict(color='red'),
+    marker=dict(color='red'),
+    hovertemplate='Año: %{x}<br>Mediana Velocidad: %{y:.2f} km/h'
+))
+
+# Añadir la línea de tendencia
+fig5.add_trace(go.Scatter(
+    x=median_speed_per_year['year'],
+    y=trendline,
+    mode='lines',
+    name='Tendencia',
+    line=dict(color='yellow', dash='dash'),
+    hovertemplate='Año: %{x}<br>Tendencia: %{y:.2f} km/h'
+))
+
+# Ajustar etiquetas y diseño
+fig5.update_layout(
+    title='Velocidad Promedio de Pilotos en Carreras de F1 ({}-{})'.format(start_year, end_year),
+    xaxis_title='Año',
+    yaxis_title='Velocidad Promedio (km/h)',
+    width=None,
+    height=500,
+    legend_title='Leyenda',
+    hovermode='x unified',
+    xaxis=dict(
+        tickmode='linear',
+        dtick=5  # Mostrar etiqueta de año cada 5 años
+    )
+)
+
+st.plotly_chart(fig5, use_container_width=True)
+
+st.markdown("""
+Este gráfico muestra la evolución de la velocidad promedio de los pilotos en las carreras de Fórmula 1 desde 1950 hasta 2023. Los boxplots por año permiten visualizar la dispersión de las velocidades, mientras que la línea roja representa la mediana anual y la línea amarilla punteada indica la tendencia a lo largo del tiempo.
+""")
 
 st.markdown("""
 Estos análisis nos permiten tener una visión general de la evolución y distribución de la Fórmula 1 a lo largo de los años.

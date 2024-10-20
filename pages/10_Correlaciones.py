@@ -40,15 +40,6 @@ def load_data():
     # No cargamos weather data
 
     # Cargar datos desde los archivos JSON
-    with open('data/surface_classification.json', 'r') as f:
-        surface_classification = json.load(f)
-
-    with open('data/permanence_classification.json', 'r') as f:
-        permanence_classification = json.load(f)
-
-    with open('data/continent_classification.json', 'r') as f:
-        continent_classification = json.load(f)
-
     with open('data/circuit_lengths.json', 'r') as f:
         circuit_lengths = json.load(f)
 
@@ -67,9 +58,6 @@ def load_data():
         'constructor_results': constructor_results,
         'sprint_results': sprint_results,
         'status': status,
-        'surface_classification': surface_classification,
-        'permanence_classification': permanence_classification,
-        'continent_classification': continent_classification,
         'circuit_lengths': circuit_lengths
     }
 
@@ -152,160 +140,225 @@ results_races_drivers['tiempo_horas'].replace(0, np.nan, inplace=True)  # Evitar
 results_races_drivers['velocidad_promedio_kmh'] = results_races_drivers['distancia_total_km'] / results_races_drivers['tiempo_horas']
 
 # ---------------------------
-# Seleccionar variables para el análisis de correlación
-corr_variables = {
-    'Posición de salida (Grid)': 'grid',
-    'Posición final': 'positionOrder',
-    'Puntos obtenidos': 'points',
-    'Vueltas completadas': 'laps',
-    'Tiempo total de carrera (ms)': 'milliseconds',
-    'Velocidad de vuelta más rápida': 'fastestLapSpeed',
-    'Edad del piloto': 'edad_piloto',
-    'Número de pit stops': 'num_pit_stops',
-    'Posición en clasificación': 'posicion_clasificacion',
-    'Distancia total recorrida (km)': 'distancia_total_km',
-    'Velocidad promedio (km/h)': 'velocidad_promedio_kmh'
-}
+# Añadir selector de años
+years = sorted(results_races_drivers['year'].dropna().unique(), reverse=True)
+default_year = [years[0]] if years else []
+selected_years = st.multiselect('Seleccione el/los año(s) para el análisis', years, default=default_year)
 
-# Extraer los datos para las variables seleccionadas
-corr_data = results_races_drivers[list(corr_variables.values())]
-
-# Convertir columnas a numéricas y manejar valores faltantes
-corr_data = corr_data.apply(pd.to_numeric, errors='coerce')
-
-# Verificar cuántos datos tenemos antes de eliminar filas con NaN
-st.write(f"Total de registros antes de eliminar NaNs: {len(corr_data)}")
-
-# Eliminar filas donde todas las variables son NaN
-corr_data = corr_data.dropna(how='all')
-
-# Eliminar columnas con todos los valores NaN
-corr_data = corr_data.dropna(axis=1, how='all')
-
-# Verificar cuántos datos tenemos después de eliminar filas con NaN
-st.write(f"Total de registros después de eliminar NaNs: {len(corr_data)}")
-
-if corr_data.empty:
-    st.warning("No hay datos suficientes para generar la matriz de correlación.")
+if not selected_years:
+    st.warning("Por favor, seleccione al menos un año para el análisis.")
 else:
+    # Filtrar los datos según los años seleccionados
+    filtered_data = results_races_drivers[results_races_drivers['year'].isin(selected_years)]
+    
     # ---------------------------
-    # Matriz de Correlación General
-    st.write("## Matriz de Correlación General")
-
-    corr_matrix = corr_data.corr()
-
-    # Actualizar nombres de columnas a español
-    inverse_corr_variables = {v: k for k, v in corr_variables.items()}
-    corr_matrix.rename(columns=inverse_corr_variables, inplace=True)
-    corr_matrix.rename(index=inverse_corr_variables, inplace=True)
-
-    fig, ax = plt.subplots(figsize=(12, 10))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
-    st.pyplot(fig)
-
-    st.markdown("""
-    La matriz de correlación nos muestra las relaciones entre diferentes variables en las carreras de Fórmula 1.
-    """)
-
-    # ---------------------------
-    # Análisis de Correlaciones Específicas
-
-    st.write("## Análisis de Correlaciones Específicas")
-
-    # Opciones de variables para el usuario
-    variable_options = list(corr_variables.keys())
-
-    var_x = st.selectbox('Seleccione la variable en el eje X', variable_options, key='var_x')
-
-    # Excluir la variable seleccionada en var_x de las opciones en var_y
-    var_y_options = [option for option in variable_options if option != var_x]
-
-    var_y = st.selectbox('Seleccione la variable en el eje Y', var_y_options, key='var_y')
-
-    x = corr_variables[var_x]
-    y = corr_variables[var_y]
-
-    # Preparar datos para el scatter plot
-    scatter_data = corr_data[[x, y]].dropna()
-
-    if scatter_data.empty:
-        st.warning("No hay datos suficientes para generar el gráfico de dispersión.")
+    # Seleccionar variables para el análisis de correlación
+    corr_variables = {
+        'Posición de salida (Grid)': 'grid',
+        'Posición final': 'positionOrder',
+        'Puntos obtenidos': 'points',
+        'Vueltas completadas': 'laps',
+        'Tiempo total de carrera (ms)': 'milliseconds',
+        'Velocidad de vuelta más rápida': 'fastestLapSpeed',
+        'Edad del piloto': 'edad_piloto',
+        'Número de pit stops': 'num_pit_stops',
+        'Posición en clasificación': 'posicion_clasificacion',
+        'Distancia total recorrida (km)': 'distancia_total_km',
+        'Velocidad promedio (km/h)': 'velocidad_promedio_kmh'
+    }
+    
+    # Extraer los datos para las variables seleccionadas
+    corr_data = filtered_data[list(corr_variables.values())]
+    
+    # Convertir columnas a numéricas y manejar valores faltantes
+    corr_data = corr_data.apply(pd.to_numeric, errors='coerce')
+    
+    # Eliminar filas donde todas las variables son NaN
+    corr_data = corr_data.dropna(how='all')
+    
+    # Eliminar columnas con todos los valores NaN
+    corr_data = corr_data.dropna(axis=1, how='all')
+    
+    if corr_data.empty:
+        st.warning("No hay datos suficientes para generar la matriz de correlación.")
     else:
-        # Crear scatter plot
-        fig_scatter, ax_scatter = plt.subplots()
-        sns.scatterplot(data=scatter_data, x=x, y=y, ax=ax_scatter)
-        ax_scatter.set_xlabel(var_x)
-        ax_scatter.set_ylabel(var_y)
-        ax_scatter.set_title(f'{var_y} vs {var_x}')
-        st.pyplot(fig_scatter)
-
-        # Calcular coeficiente de correlación
-        corr_coef = scatter_data[x].corr(scatter_data[y])
-        st.write(f"**Coeficiente de correlación de Pearson entre {var_x} y {var_y}: {corr_coef:.2f}**")
-
-        # Interpretación básica
-        if corr_coef > 0.5:
-            st.write("Existe una **correlación positiva fuerte** entre las variables seleccionadas.")
-        elif corr_coef > 0.3:
-            st.write("Existe una **correlación positiva moderada** entre las variables seleccionadas.")
-        elif corr_coef > 0.1:
-            st.write("Existe una **correlación positiva débil** entre las variables seleccionadas.")
-        elif corr_coef < -0.5:
-            st.write("Existe una **correlación negativa fuerte** entre las variables seleccionadas.")
-        elif corr_coef < -0.3:
-            st.write("Existe una **correlación negativa moderada** entre las variables seleccionadas.")
-        elif corr_coef < -0.1:
-            st.write("Existe una **correlación negativa débil** entre las variables seleccionadas.")
-        else:
-            st.write("No existe una correlación significativa entre las variables seleccionadas.")
-
-    # ---------------------------
-    # Análisis Predefinidos
-
-    st.write("## Análisis Predefinidos")
-
-    # Función para generar análisis predefinidos
-    def analizar_correlacion(var_x_name, var_y_name):
-        x_var = corr_variables[var_x_name]
-        y_var = corr_variables[var_y_name]
-        data = corr_data[[x_var, y_var]].dropna()
-        if data.empty:
-            st.write(f"No hay datos suficientes para analizar {var_x_name} vs {var_y_name}.")
-            return
-        corr_coef = data[x_var].corr(data[y_var])
-        st.write(f"**Coeficiente de correlación de Pearson:** {corr_coef:.2f}")
-        fig, ax = plt.subplots()
-        sns.scatterplot(data=data, x=x_var, y=y_var, alpha=0.5, ax=ax)
-        ax.set_xlabel(var_x_name)
-        ax.set_ylabel(var_y_name)
-        ax.set_title(f'{var_y_name} vs {var_x_name}')
+        # ---------------------------
+        # Matriz de Correlación General
+        st.write("## Matriz de Correlación General")
+    
+        corr_matrix = corr_data.corr()
+    
+        # Actualizar nombres de columnas a español
+        inverse_corr_variables = {v: k for k, v in corr_variables.items()}
+        corr_matrix.rename(columns=inverse_corr_variables, inplace=True)
+        corr_matrix.rename(index=inverse_corr_variables, inplace=True)
+    
+        fig, ax = plt.subplots(figsize=(12, 10))
+        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
         st.pyplot(fig)
-        return corr_coef
-
-    # 1. Correlación entre posición de salida y posición final
-    st.write("### 1. Posición de salida vs Posición final")
-    corr_gp_fp = analizar_correlacion('Posición de salida (Grid)', 'Posición final')
-    st.markdown("""
-    Podemos observar una **correlación positiva** entre la posición de salida y la posición final, lo que indica que los pilotos que empiezan en posiciones delanteras tienden a terminar en mejores posiciones.
-    """)
-
-    # 2. Correlación entre número de pit stops y posición final
-    st.write("### 2. Número de pit stops vs Posición final")
-    corr_np_fp = analizar_correlacion('Número de pit stops', 'Posición final')
-    st.markdown("""
-    Existe una **correlación positiva débil** entre el número de pit stops y la posición final. Esto sugiere que más pit stops pueden estar asociados con posiciones finales más bajas, posiblemente debido al tiempo perdido en paradas adicionales.
-    """)
-
-    # 3. Correlación entre edad del piloto y puntos obtenidos
-    st.write("### 3. Edad del piloto vs Puntos obtenidos")
-    corr_age_points = analizar_correlacion('Edad del piloto', 'Puntos obtenidos')
-    st.markdown("""
-    La correlación entre la edad del piloto y los puntos obtenidos es **débil**. Esto indica que no hay una relación significativa entre la edad y el rendimiento en términos de puntos en una carrera individual.
-    """)
-
-    # 4. Correlación entre posición en clasificación y posición final
-    st.write("### 4. Posición en clasificación vs Posición final")
-    corr_qp_fp = analizar_correlacion('Posición en clasificación', 'Posición final')
-    st.markdown("""
-    Existe una **correlación positiva fuerte** entre la posición en clasificación y la posición final. Esto indica que una buena posición en clasificación suele traducirse en una mejor posición al final de la carrera.
-    """)
+    
+        st.markdown("""
+        La matriz de correlación nos muestra las relaciones entre diferentes variables en las carreras de Fórmula 1.
+        """)
+    
+        # ---------------------------
+        # Análisis de Correlaciones Específicas
+    
+        st.write("## Análisis de Correlaciones Específicas")
+    
+        # Opciones de variables para el usuario
+        variable_options = list(corr_variables.keys())
+    
+        var_x = st.selectbox('Seleccione la variable en el eje X', variable_options, key='var_x')
+    
+        # Excluir la variable seleccionada en var_x de las opciones en var_y
+        var_y_options = [option for option in variable_options if option != var_x]
+    
+        var_y = st.selectbox('Seleccione la variable en el eje Y', var_y_options, key='var_y')
+    
+        x = corr_variables[var_x]
+        y = corr_variables[var_y]
+    
+        # Preparar datos para el scatter plot
+        scatter_data = corr_data[[x, y]].dropna()
+    
+        if scatter_data.empty:
+            st.warning("No hay datos suficientes para generar el gráfico de dispersión.")
+        else:
+            # Crear scatter plot
+            fig_scatter, ax_scatter = plt.subplots()
+            sns.scatterplot(data=scatter_data, x=x, y=y, ax=ax_scatter)
+            ax_scatter.set_xlabel(var_x)
+            ax_scatter.set_ylabel(var_y)
+            ax_scatter.set_title(f'{var_y} vs {var_x}')
+            st.pyplot(fig_scatter)
+    
+            # Calcular coeficiente de correlación
+            corr_coef = scatter_data[x].corr(scatter_data[y])
+            st.write(f"**Coeficiente de correlación de Pearson entre {var_x} y {var_y}: {corr_coef:.2f}**")
+    
+            # Interpretación basada en el signo y los nuevos umbrales
+            if abs(corr_coef) >= 0.65:
+                intensidad = "fuerte"
+            elif 0.25 <= abs(corr_coef) < 0.65:
+                intensidad = "moderada"
+            else:
+                intensidad = "débil"
+    
+            signo = "positiva" if corr_coef > 0 else "negativa"
+    
+            if intensidad == "débil":
+                st.write("No existe una correlación significativa entre las variables seleccionadas.")
+            else:
+                st.write(f"Existe una **correlación {signo} {intensidad}** entre las variables seleccionadas.")
+    
+        # ---------------------------
+        # Análisis Predefinidos
+    
+        st.write("## Análisis Predefinidos")
+    
+        # Función para generar análisis predefinidos
+        def analizar_correlacion(var_x_name, var_y_name):
+            x_var = corr_variables[var_x_name]
+            y_var = corr_variables[var_y_name]
+            data = corr_data[[x_var, y_var]].dropna()
+            if data.empty:
+                st.write(f"No hay datos suficientes para analizar {var_x_name} vs {var_y_name}.")
+                return None
+            corr_coef = data[x_var].corr(data[y_var])
+            st.write(f"**Coeficiente de correlación de Pearson:** {corr_coef:.2f}")
+            fig, ax = plt.subplots()
+            sns.scatterplot(data=data, x=x_var, y=y_var, alpha=0.5, ax=ax)
+            ax.set_xlabel(var_x_name)
+            ax.set_ylabel(var_y_name)
+            ax.set_title(f'{var_y_name} vs {var_x_name}')
+            st.pyplot(fig)
+            return corr_coef
+    
+        # 1. Correlación entre posición de salida y posición final
+        st.write("### 1. Posición de salida vs Posición final")
+        corr_gp_fp = analizar_correlacion('Posición de salida (Grid)', 'Posición final')
+        if corr_gp_fp is not None:
+            if abs(corr_gp_fp) >= 0.65:
+                intensidad = "fuerte"
+            elif 0.25 <= abs(corr_gp_fp) < 0.65:
+                intensidad = "moderada"
+            else:
+                intensidad = "débil"
+    
+            signo = "positiva" if corr_gp_fp > 0 else "negativa"
+    
+            if intensidad == "débil":
+                st.markdown("""
+                No existe una correlación significativa entre la posición de salida y la posición final.
+                """)
+            else:
+                st.markdown(f"""
+                Podemos observar una **correlación {signo} {intensidad}** entre la posición de salida y la posición final, lo que indica que los pilotos que empiezan en posiciones delanteras tienden a terminar en mejores posiciones.
+                """)
+    
+        # 2. Correlación entre número de pit stops y posición final
+        st.write("### 2. Número de pit stops vs Posición final")
+        corr_np_fp = analizar_correlacion('Número de pit stops', 'Posición final')
+        if corr_np_fp is not None:
+            if abs(corr_np_fp) >= 0.65:
+                intensidad = "fuerte"
+            elif 0.25 <= abs(corr_np_fp) < 0.65:
+                intensidad = "moderada"
+            else:
+                intensidad = "débil"
+    
+            signo = "positiva" if corr_np_fp > 0 else "negativa"
+    
+            if intensidad == "débil":
+                st.markdown("""
+                No existe una correlación significativa entre el número de pit stops y la posición final.
+                """)
+            else:
+                st.markdown(f"""
+                Existe una **correlación {signo} {intensidad}** entre el número de pit stops y la posición final. Esto sugiere que más pit stops pueden estar asociados con posiciones finales más bajas, posiblemente debido al tiempo perdido en paradas adicionales.
+                """)
+    
+        # 3. Correlación entre edad del piloto y puntos obtenidos
+        st.write("### 3. Edad del piloto vs Puntos obtenidos")
+        corr_age_points = analizar_correlacion('Edad del piloto', 'Puntos obtenidos')
+        if corr_age_points is not None:
+            if abs(corr_age_points) >= 0.65:
+                intensidad = "fuerte"
+            elif 0.25 <= abs(corr_age_points) < 0.65:
+                intensidad = "moderada"
+            else:
+                intensidad = "débil"
+    
+            signo = "positiva" if corr_age_points > 0 else "negativa"
+    
+            if intensidad == "débil":
+                st.markdown("""
+                No existe una correlación significativa entre la edad del piloto y los puntos obtenidos.
+                """)
+            else:
+                st.markdown(f"""
+                La correlación entre la edad del piloto y los puntos obtenidos es **{signo} {intensidad}**. Esto indica que {('hay una relación significativa' if intensidad != 'débil' else 'no hay una relación significativa')} entre la edad y el rendimiento en términos de puntos en una carrera individual.
+                """)
+    
+        # 4. Correlación entre posición en clasificación y posición final
+        st.write("### 4. Posición en clasificación vs Posición final")
+        corr_qp_fp = analizar_correlacion('Posición en clasificación', 'Posición final')
+        if corr_qp_fp is not None:
+            if abs(corr_qp_fp) >= 0.65:
+                intensidad = "fuerte"
+            elif 0.25 <= abs(corr_qp_fp) < 0.65:
+                intensidad = "moderada"
+            else:
+                intensidad = "débil"
+    
+            signo = "positiva" if corr_qp_fp > 0 else "negativa"
+    
+            if intensidad == "débil":
+                st.markdown("""
+                No existe una correlación significativa entre la posición en clasificación y la posición final.
+                """)
+            else:
+                st.markdown(f"""
+                Existe una **correlación {signo} {intensidad}** entre la posición en clasificación y la posición final. Esto indica que una buena posición en clasificación suele traducirse en una mejor posición al final de la carrera.
+                """)
