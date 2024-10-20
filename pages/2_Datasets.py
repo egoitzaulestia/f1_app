@@ -16,18 +16,18 @@ st.markdown("A continuación, puedes explorar los distintos datasets utilizados 
 # Lista de datasets
 datasets = {
     "Pilotos": "data/drivers.csv",
-    "Constructors": "data/constructors.csv",
-    "Results": "data/results.csv",
-    "Circuits": "data/circuits.csv",
-    "Constructor Results": "data/constructor_results.csv",
-    "Constructor Standing": "data/constructor_standings.csv",
-    "Driver Standings": "data/driver_standings.csv",
-    "Lap Times": "data/lap_times.csv",
+    "Constructores": "data/constructors.csv",
+    "Resultados": "data/results.csv",
+    "Circuitos": "data/circuits.csv",
+    "Resultados de Constructores": "data/constructor_results.csv",
+    "Clasificación de Constructores": "data/constructor_standings.csv",
+    "Clasificación de Pilotos": "data/driver_standings.csv",
+    "Tiempor se Vuelta": "data/lap_times.csv",
     "Pit Stops": "data/pit_stops.csv",
-    "Qualifying": "data/qualifying.csv",
-    "Seasons": "data/seasons.csv",
-    "Sprint Results": "data/sprint_results.csv",
-    "Status": "data/status.csv",
+    "Clasificación": "data/qualifying.csv",
+    "Temporada": "data/seasons.csv",
+    "Resultados de Sprints": "data/sprint_results.csv",
+    "Estado": "data/status.csv",
     "F1 Weather (2023-2018)": "data/F1 Weather(2023-2018).csv"
 }
 

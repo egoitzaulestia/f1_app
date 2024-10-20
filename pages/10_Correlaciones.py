@@ -39,7 +39,7 @@
 # """)
 
 
-# pages/9_Correlaciones.py
+# pages/10_Correlaciones.py
 
 import streamlit as st
 import pandas as pd
