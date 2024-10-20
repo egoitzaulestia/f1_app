@@ -390,7 +390,7 @@ nationality_counts = drivers['nationality'].value_counts().reset_index()
 nationality_counts.columns = ['nationality', 'count']
 
 fig1 = px.bar(nationality_counts.head(10), x='nationality', y='count',
-              title='Top 10 Nacionalidades de Pilotos',
+              title='Top 10 Nacionalidades de Pilotos (desde el año 1950 al 2024)',
               labels={'count': 'Número de Pilotos', 'nationality': 'Nacionalidad'},
               text='count')  # Añadimos el número encima de cada barra
 
@@ -406,7 +406,7 @@ constructor_nationality_counts = constructors['nationality'].value_counts().rese
 constructor_nationality_counts.columns = ['nationality', 'count']
 
 fig2 = px.bar(constructor_nationality_counts.head(10), x='nationality', y='count',
-              title='Top 10 Nacionalidades de Constructores',
+              title='Top 10 Nacionalidades de Constructores (desde el año 1950 al 2024)',
               labels={'count': 'Número de Constructores', 'nationality': 'Nacionalidad'},
               text='count')  # Añadimos el número encima de cada barra
 
