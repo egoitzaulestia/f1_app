@@ -9,7 +9,7 @@ import json
 
 st.set_page_config(
     page_title="Análisis de Correlaciones",
-    page_icon="📊",
+    page_icon="🏎️",
     layout="wide",
 )
 

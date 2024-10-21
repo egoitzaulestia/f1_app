@@ -22,6 +22,7 @@ def set_background(image_file):
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
+        text-align: center;
     }}
     </style>
     """
@@ -39,7 +40,7 @@ st.markdown("""
             Bienvenido al Análisis Exploratorio de Datos de Fórmula 1 
         </h1>
         <p style="color: white; text-align: center;">
-            Explora diferentes secciones para obtener análisis detallados sobre pilotos, equipos, circuitos y mucho más en el emocionante mundo de la Fórmula 1.
+            Explora de forma interactiva diferentes secciones para obtener análisis detallados sobre pilotos, equipos, circuitos y mucho más en el emocionante mundo de la Fórmula 1.
         </p>
     </div>
     <br>

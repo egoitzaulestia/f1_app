@@ -6,7 +6,7 @@ import plotly.express as px
 
 st.set_page_config(
     page_title="Palmarés",
-    page_icon="🥇",
+    page_icon="🏎️",
     layout="wide",
 )
 
@@ -112,3 +112,7 @@ else:
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig, use_container_width=True)
+
+
+st.markdown("""
+Este gráfico interactivo muestra un mapa de calor de los pilotos de Fórmula 1 con más victorias, visualizando cuántas veces ganaron en cada año de competición. Los pilotos están ordenados según el promedio del año de sus victorias, destacando a las generaciones más recientes, y permite filtrar por el número mínimo de triunfos, ofreciendo una vista clara de los dominadores históricos de la F1.""")
