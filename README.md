@@ -1,3 +1,5 @@
+00. Puedes ver la versión online de esta APP desplegada en streamli [ https://f1-data-science.streamlit.app/ ]
+
 01. Por favor antes de tratar de ecutar esta app en local, ejecuta la siguiente orden en tu terminal
 
     pip install -r requirements.txt
