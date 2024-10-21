@@ -3,7 +3,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="Análisis de Carreras",
@@ -59,52 +58,9 @@ race_results = race_results[['positionOrder', 'forename', 'surname', 'name', 'la
 # Renombrar columnas para mejor presentación
 race_results.columns = ['Posición', 'Nombre', 'Apellido', 'Constructor', 'Vueltas', 'Tiempo', 'Milisegundos', 'Puntos']
 
-# Mostrar tabla de resultados como una tabla gráfica adaptada al modo oscuro
+# Mostrar tabla de resultados como una tabla tipo CSV
 st.write("### Tabla de Resultados")
-
-# Preparar los datos para la tabla
-table_data = race_results.reset_index(drop=True)
-
-# Crear una lista de colores para las filas alternadas
-fill_colors = []
-for i in range(len(table_data)):
-    if i % 2 == 0:
-        # Filas pares
-        fill_colors.append('rgba(50, 50, 50, 0.5)')
-    else:
-        # Filas impares
-        fill_colors.append('rgba(0, 0, 0, 0)')  # Transparente
-
-# Crear una matriz de colores para las celdas
-cell_fill_colors = []
-for col in table_data.columns:
-    cell_fill_colors.append(fill_colors)
-
-# Crear una tabla de Plotly adaptada al modo oscuro
-fig_table = go.Figure(data=[go.Table(
-    header=dict(
-        values=list(table_data.columns),
-        fill_color='rgb(30, 30, 30)',  # Fondo oscuro para el encabezado
-        align='left',
-        font=dict(color='white', size=12)
-    ),
-    cells=dict(
-        values=[table_data[col] for col in table_data.columns],
-        fill_color=cell_fill_colors,
-        align='left',
-        font=dict(color='white', size=11)
-    )
-)])
-
-# Ajustar el layout de la tabla
-fig_table.update_layout(
-    margin=dict(l=0, r=0, t=0, b=0),
-    paper_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
-    plot_bgcolor='rgba(0,0,0,0)'    # Fondo transparente
-)
-
-# Mostrar la tabla en Streamlit
-st.plotly_chart(fig_table, use_container_width=True)
+st.dataframe(race_results)
 
 # Gráfico de posiciones por vuelta
 st.write("## Posición de Pilotos por Vuelta")
