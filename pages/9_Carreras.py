@@ -62,6 +62,10 @@ race_results.columns = ['Posición', 'Nombre', 'Apellido', 'Constructor', 'Vuelt
 st.write("### Tabla de Resultados")
 st.dataframe(race_results)
 
+st.markdown("""
+La tabla anterior muestra los resultados de la carrera seleccionada, incluyendo la posición final de cada piloto, su nombre, constructor, número de vueltas completadas, tiempo total y puntos obtenidos.
+""")
+
 # Gráfico de posiciones por vuelta
 st.write("## Posición de Pilotos por Vuelta")
 
@@ -94,6 +98,10 @@ else:
 
     st.plotly_chart(fig, use_container_width=True)
 
+    st.markdown("""
+    El gráfico anterior muestra cómo la posición de los pilotos seleccionados cambia a lo largo de cada vuelta de la carrera. Esto permite analizar el desempeño y las estrategias de los pilotos durante la competición.
+    """)
+
     # Estadísticas específicas de la carrera
     st.write("## Estadísticas de la Carrera")
 
@@ -123,3 +131,7 @@ else:
     fig_times.update_layout(hovermode='x unified')
 
     st.plotly_chart(fig_times, use_container_width=True)
+
+    st.markdown("""
+    Este gráfico muestra los tiempos de vuelta de los pilotos seleccionados a lo largo de la carrera. Permite identificar vueltas rápidas, consistencia y posibles eventos que afectaron el rendimiento, como paradas en pits o incidentes en pista.
+    """)
