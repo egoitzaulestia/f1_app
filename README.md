@@ -1,4 +1,4 @@
-![Streamlit](https://img.shields.io/badge/Streamlit-red) 💨 💨 💨 . . .  Puedes ver la versión desplegada online de la F1 APP que he creado en el siguiente link [ https://f1-data-science.streamlit.app/ ]
+![Streamlit](https://img.shields.io/badge/Streamlit-red) 💨 💨 💨 . . .  Proyecto F1 APP desplegada online en el siguiente link [ https://f1-data-science.streamlit.app/ ]
 
 ---
 
