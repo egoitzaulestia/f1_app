@@ -2,6 +2,8 @@ Puedes ver la versión desplegada online de la F1 APP que he creado en el siguie
 
 ---
 
+![Fondo F1](images/fondoF1.jpg)
+
 01. Por favor antes de tratar de ecutar esta app en local, ejecuta la siguiente orden en tu terminal
 
     pip install -r requirements.txt
