@@ -10,13 +10,13 @@ from folium.plugins import HeatMap
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Mapas Geográficos 3D",
+    page_title="Mapas Geográficos",
     page_icon="🏎️",
     layout="wide",
 )
 
 # Título de la página
-st.write("# Mapas Geográficos 3D 🌍")
+st.write("# Mapas Geográficos 🌍")
 
 st.markdown("""
 En esta sección, exploramos las ubicaciones de los circuitos de Fórmula 1 a través de mapas interactivos. Puedes visualizar rutas entre circuitos en un año específico, observar la evolución de los circuitos a lo largo de los años y analizar la densidad de circuitos en diferentes regiones.
