@@ -10,7 +10,7 @@ from folium.plugins import HeatMap
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Mapas Geográficos",
+    page_title="Mapas Geográficos 3D",
     page_icon="🏎️",
     layout="wide",
 )
